@@ -163,7 +163,7 @@ foreach ($ADGroup in $ADGroups)
         Write-Progress -Activity "Processing Group - $gn" -Status "$i of $ADGroupCount groups" -PercentComplete $gpercent -Id 1
         
         $groupmembers = Get-ADGroupMember -Identity $ADGroup.DistinguishedName | Select-Object SamAccountName
-        $groupmembercount = $groupmembers.count
+        $groupmembercount = ($groupmembers.name).count
 
         #Export group members before changes
         if($ExportMembers)
@@ -180,7 +180,7 @@ foreach ($ADGroup in $ADGroups)
         $j++
         $mn = $groupmember.SamAccountName
         WriteLog "Processing Groupmember $j of $groupmembercount - $mn"
-        if ($groupmembercount -eq 0) {$mpercent = 100} else {$mpercent = $j/$groupmembercount*100}
+        if ($groupmembercount -ne 0) {$mpercent = $j/$groupmembercount*100} else {$mpercent = 100}
         Write-Progress -ParentId 1 -Activity "Processing Group Members - $mn" -Status "$j of $groupmembercount group members" -PercentComplete $mpercent
             if ($DisabledAccounts -contains $groupmember.SamAccountName)
                 {
