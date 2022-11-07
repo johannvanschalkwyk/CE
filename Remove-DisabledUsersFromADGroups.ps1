@@ -38,6 +38,7 @@ Email: johann.vanschalkwyk@cloudessentials.com
 
 Change Log
 V1.0, 02/11/2022 - Initial version
+V2.0, 07/11/2022 - Updated Error logging for Removal failures
 #>
 
 #...................................
@@ -75,7 +76,7 @@ function WriteLog
 #...................................
 # Script
 #...................................
-$ErrorActionPreference = 'SilentlyContinue'
+#$ErrorActionPreference = 'SilentlyContinue'
 #Check if ActiveDirectory PowerShell module is installed
 if (Get-Module -ListAvailable -Name ActiveDirectory)
     {
@@ -94,7 +95,7 @@ if (!$logfilepath)
         $logpath= [System.Environment]::CurrentDirectory
         $LogFile = $logpath+"\Log_RemoveDisabledUsers_"+$date+".txt"
 
-        $exportpath = $logpath + "GroupMemberExportLists"
+        $exportpath = $logpath + "\GroupMemberExportLists"
 
         if(!(Test-Path $exportpath))
             {
@@ -113,7 +114,7 @@ if (!$logfilepath)
                     $logpath = $logfilepath
                     $LogFile = $logfilepath+"\Log_RemoveDisabledUsers_"+$date+".txt"
 
-                    $exportpath = $logpath + "GroupMemberExportLists"
+                    $exportpath = $logpath + "\GroupMemberExportLists"
 
                     if(!(Test-Path $exportpath))
                         {
@@ -183,8 +184,14 @@ foreach ($ADGroup in $ADGroups)
         Write-Progress -ParentId 1 -Activity "Processing Group Members - $mn" -Status "$j of $groupmembercount group members" -PercentComplete $mpercent
             if ($DisabledAccounts -contains $groupmember.SamAccountName)
                 {
-                    Remove-ADGroupMember -Identity $ADGroup.DistinguishedName -Member $groupmember.SamAccountName -Confirm:$false #-WhatIf
-                    WriteLog "Removed User $mn from group."
+                    try {
+                        Remove-ADGroupMember -Identity $ADGroup.DistinguishedName -Member $groupmember.SamAccountName -Confirm:$false #-WhatIf
+                        WriteLog "Removed User $mn from group."
+                    }
+                    catch {
+                        WriteLog "Failed to remove user $mn from group - Error Message: $_"
+                        Write-Host "Failed to remove user $mn from group - Error Message: $_" -ForegroundColor Red
+                    }
                 }
                 else {
                     WriteLog "Skipped User $mn."
