@@ -38,7 +38,7 @@ Email: johann.vanschalkwyk@cloudessentials.com
 
 Change Log
 V1.0, 02/11/2022 - Initial version
-V2.0, 07/11/2022 - Updated Error logging for Removal failures
+V2.1, 07/11/2022 - Updated Error logging for Removal failures
 #>
 
 #...................................
